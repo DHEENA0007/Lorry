@@ -1,0 +1,615 @@
+Transport & Fleet Management Application – Complete Draft
+1. Project Overview
+
+This Transport Management System is a full-scale logistics and fleet operations platform designed to manage lorries, drivers, bookings, trip execution, and financial tracking. The system consists of:
+
+Super Admin Web Portal (React + Tailwind v4)
+
+User Mobile Application (Flutter)
+
+Driver Mobile Application (Flutter)
+
+Backend API (Node.js)
+
+Database (SQL – PostgreSQL / MySQL recommended)
+
+Google Routes API Integration for route mapping, tracking, and analytics
+
+The application supports real-time lorry tracking, smart booking (similar to Rapido/Ola model), route-based cost estimation, trip budgeting, and post-trip financial reconciliation.
+
+2. System Architecture
+Backend
+
+Node.js (Express.js framework)
+
+REST API architecture
+
+JWT authentication
+
+Role-based access control (RBAC)
+
+Google Maps & Routes API integration
+
+Real-time tracking using WebSockets / Firebase
+
+Web Frontend (Super Admin Portal)
+
+React (Vite recommended)
+
+Tailwind CSS v4
+
+Chart.js / Recharts for analytics
+
+Google Maps integration
+
+Mobile Applications
+
+Flutter (User App & Driver App)
+
+Google Maps SDK
+
+Background location tracking
+
+Push Notifications (Firebase Cloud Messaging)
+
+Database
+
+SQL (PostgreSQL preferred for scalability)
+
+Structured relational schema
+
+Transaction-safe financial logging
+
+3. Super Admin Portal (Web Application)
+
+The Super Admin portal is the operational control center of the entire platform.
+
+3.1 Lorry Management
+
+Super Admin can:
+
+Add new lorries (Vehicle Number, Type, Capacity, Permit, Insurance expiry)
+
+Upload RC, Insurance, Road Tax documents
+
+Track maintenance history
+
+Assign lorries to drivers
+
+Activate/Deactivate vehicles
+
+View lorry current live location on map
+
+Track fuel efficiency analytics
+
+Lorry Status Types:
+
+Available
+
+On Trip
+
+Maintenance
+
+Inactive
+
+3.2 Staff Roles & Permissions
+
+Role-Based Access Control System:
+
+Roles:
+
+Super Admin
+
+Operations Manager
+
+Accounts Manager
+
+Fleet Supervisor
+
+Each role can be configured with permissions such as:
+
+Manage lorries
+
+Schedule trips
+
+Approve bookings
+
+View financial reports
+
+View route analytics
+
+Modify pricing rules
+
+Permission module includes granular access:
+
+View / Create / Edit / Delete
+
+3.3 Real-Time Lorry Tracking
+
+Using Google Routes + GPS integration:
+
+Exact live vehicle location
+
+Route deviation alerts
+
+ETA calculation
+
+Speed monitoring
+
+Idle time detection
+
+Trip timeline playback
+
+Admin dashboard shows:
+
+Map view of all active lorries
+
+Filter by status
+
+Driver details on click
+
+3.4 Trip Scheduling
+
+Admin can:
+
+Select driver
+
+Select lorry
+
+Add pickup location
+
+Add delivery location
+
+Add intermediate stops (optional)
+
+Define expected delivery date/time
+
+Set trip budget (Fuel + Food + Toll + Misc)
+
+Assign POD requirement
+
+The system calculates:
+
+Distance
+
+Estimated travel time
+
+Route-based cost estimation
+
+3.5 Trip Budget & Expense Reconciliation
+
+While scheduling:
+
+Admin sets:
+
+Fuel Budget
+
+Food Allowance
+
+Toll Budget
+
+Misc Budget
+
+Total Budget
+
+After trip completion:
+
+Driver uploads:
+
+Diesel expense
+
+Food expense
+
+Toll receipts
+
+Other bills
+
+System auto-calculates:
+
+Total Spent
+
+Remaining Budget
+
+Excess Amount (if overspent)
+
+Savings (if underspent)
+
+Accounts dashboard shows:
+
+Budget vs Actual comparison
+
+Profit/Loss per trip
+
+3.6 Route & Cost Analytics
+
+Analytics Dashboard includes:
+
+Cost per KM
+
+Most profitable routes
+
+High fuel consumption vehicles
+
+Driver performance rating
+
+Delivery time comparison
+
+Monthly revenue
+
+Route deviation statistics
+
+Idle time analytics
+
+Charts:
+
+Revenue Graph
+
+Expense Graph
+
+Route heatmap
+
+Driver efficiency score
+
+4. User Portal (Mobile Application)
+
+This application is for customers who want to book lorries.
+
+4.1 Smart Lorry Booking
+
+Similar to Rapido/Ola model:
+
+User can:
+
+Search lorries by exact pickup location
+
+View available nearby lorries
+
+See lorry type & capacity
+
+Get estimated fare
+
+View ETA
+
+Booking Types:
+
+Book for Self
+
+Book for Others
+
+4.2 Booking Details Form
+
+While booking, user must provide:
+
+Pickup Details:
+
+Pickup Address
+
+Contact Person Name
+
+Mobile Number
+
+WhatsApp Number
+
+Delivery Details:
+
+Delivery Address
+
+Contact Person Name
+
+Phone Number
+
+Special Instructions
+
+Load Details:
+
+Type of goods
+
+Weight
+
+Special handling requirements
+
+4.3 POD (Proof of Delivery)
+
+After delivery:
+
+Driver uploads POD image
+
+Receiver signature capture
+
+OTP confirmation
+
+Geo-location stamped confirmation
+
+User can:
+
+Download POD
+
+View trip history
+
+Rate driver
+
+Track trip in real-time
+
+4.4 Additional Booking Features
+
+Scheduled booking
+
+Instant booking
+
+Recurring bookings
+
+Save frequent addresses
+
+Wallet integration
+
+Online payment integration
+
+Booking cancellation with rules
+
+5. Driver Portal (Mobile Application)
+
+Driver app focuses on trip execution and expense reporting.
+
+5.1 Assigned Trips
+
+Driver can:
+
+View upcoming trips
+
+Accept/Reject trip
+
+View route navigation
+
+Contact customer
+
+Start trip
+
+Mark pickup completed
+
+Mark delivery completed
+
+5.2 Google Routes Integration
+
+Features:
+
+Turn-by-turn navigation
+
+Live ETA updates
+
+Route deviation alerts
+
+Distance tracking
+
+Toll detection
+
+System logs:
+
+Trip start time
+
+Stop time
+
+Travel duration
+
+Route taken
+
+5.3 Expense Management
+
+After trip:
+
+Driver enters:
+
+Diesel cost
+
+Food expense
+
+Toll charges
+
+Other expenses
+
+Upload receipt photos.
+
+System calculates:
+
+Total expense
+
+Remaining balance from allocated budget
+
+Variance
+
+5.4 POD Management
+
+Driver must:
+
+Capture receiver signature
+
+Upload delivery photo
+
+Confirm delivery location
+
+Submit trip completion report
+
+Trip status changes to:
+
+Completed
+
+Pending Review
+
+Closed
+
+6. Financial & Revenue Model
+
+Revenue Sources:
+
+Commission per booking
+
+Fixed service fee
+
+Premium booking charges
+
+Priority booking
+
+Route surge pricing
+
+Accounting Features:
+
+Wallet for drivers
+
+Admin commission ledger
+
+Monthly revenue report
+
+GST invoice generation
+
+Export reports (PDF / Excel)
+
+7. Database Structure (High Level)
+
+Core Tables:
+
+users
+
+roles
+
+permissions
+
+lorries
+
+drivers
+
+trips
+
+bookings
+
+expenses
+
+trip_budgets
+
+route_logs
+
+payments
+
+pod_records
+
+analytics_summary
+
+Relationships:
+
+One driver → many trips
+
+One lorry → many trips
+
+One booking → one trip
+
+One trip → many expenses
+
+8. Security Architecture
+
+JWT authentication
+
+Role-based access
+
+Data encryption
+
+Secure payment gateway
+
+GPS tampering detection
+
+API rate limiting
+
+Audit logs
+
+9. Notification System
+
+Trip assigned
+
+Trip started
+
+Trip completed
+
+Payment received
+
+Budget exceeded alert
+
+Route deviation alert
+
+Channels:
+
+Push Notification
+
+SMS
+
+Email
+
+WhatsApp (optional)
+
+10. Scalability Considerations
+
+Microservice-ready backend
+
+CDN for map assets
+
+Load balancer support
+
+Background job queue for analytics
+
+Horizontal scaling ready
+
+11. Future Enhancements
+
+AI route optimization
+
+Fuel fraud detection
+
+Predictive maintenance
+
+Driver scoring using AI
+
+IoT device integration
+
+Automated toll integration
+
+Tally ERP integration
+
+12. Technology Stack Summary
+
+Backend:
+Node.js (Express)
+
+Frontend Web:
+React + Tailwind CSS v4
+
+Mobile:
+Flutter
+
+Database:
+PostgreSQL
+
+Map & Routes:
+Google Maps Platform
+
+Cloud:
+AWS / GCP
+
+13. Complete System Workflow
+
+User books lorry
+
+Admin reviews or auto-assigns
+
+Driver receives trip
+
+Trip starts
+
+Live tracking active
+
+Delivery completed
+
+POD uploaded
+
+Driver submits expenses
+
+Budget reconciliation
+
+Admin closes trip
+
+Revenue recorded

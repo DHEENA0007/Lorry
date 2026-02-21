@@ -42,6 +42,9 @@ app.use('/api/analytics', analyticsRoutes);
 const auditRoutes = require('./routes/audit');
 app.use('/api/audit', auditRoutes);
 
+const mapplsRoutes = require('./routes/mappls');
+app.use('/api/mappls', mapplsRoutes);
+
 // Basic Route
 app.get('/', (req, res) => {
     res.send('Yoyo Transport API is running with SQLite');

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { fetchData } from '../services/api';
 import {
     FileText, Plus, Filter, ChevronRight, Eye, Edit2, RotateCcw, Trash2,
-    ChevronUp, ChevronDown, Download, Printer, FileSpreadsheet, FileJson
+    ChevronUp, ChevronDown, Download, Printer, FileSpreadsheet, FileJson,
+    FolderOpen, AlertTriangle, ShieldCheck, Clock
 } from 'lucide-react';
 
 export default function VehicleDocuments() {
@@ -43,9 +44,9 @@ export default function VehicleDocuments() {
         if (diff < 0) {
             const absDiff = Math.abs(diff);
             const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
-            if (days < 30) return `Expired ${days} days ago`;
+            if (days < 30) return `Expired ${days}d ago`;
             const months = Math.floor(days / 30);
-            return `Expired ${months} months ago`;
+            return `Expired ${months}m ago`;
         }
 
         const daysTotal = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -55,223 +56,316 @@ export default function VehicleDocuments() {
         const days = remainingDaysAfterYears % 30;
 
         let parts = [];
-        if (years > 0) parts.push(`${years} years`);
-        if (months > 0) parts.push(`${months} months`);
-        if (days > 0 || parts.length === 0) parts.push(`${days} days`);
+        if (years > 0) parts.push(`${years}y`);
+        if (months > 0) parts.push(`${months}m`);
+        if (days > 0 || parts.length === 0) parts.push(`${days}d`);
 
-        return parts.join(', ') + ' left';
+        return parts.join(' ') + ' left';
     };
 
-    const stats = [
-        {
-            label: 'Total Documents',
-            value: docs.length,
-            sub: 'Excluding renewed documents',
-            badge: 'Total',
-            badgeColor: 'bg-indigo-600'
-        },
-        {
-            label: 'Active Documents',
-            value: docs.filter(d => getStatus(d.expiryDate) === 'Active').length,
-            sub: 'Valid documents',
-            badge: 'Active',
-            badgeColor: 'bg-emerald-500'
-        },
-        {
-            label: 'Expired Documents',
-            value: docs.filter(d => getStatus(d.expiryDate) === 'Expired').length,
-            sub: 'Need Immediate Attention',
-            badge: 'Expired',
-            badgeColor: 'bg-rose-500'
-        },
-        {
-            label: 'Expiring Soon',
-            value: docs.filter(d => getStatus(d.expiryDate) === 'Expiring Soon').length,
-            sub: 'Requires Renewal',
-            badge: 'Next 30 Days',
-            badgeColor: 'bg-amber-500'
-        }
-    ];
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+            <div className="w-12 h-12 border-[5px] border-slate-100 border-t-orange-600 rounded-full animate-spin mb-6 shadow-xl" />
+            <p className="text-[11px] font-bold text-slate-400 tracking-[0.2em] uppercase">Authenticating Vault...</p>
+        </div>
+    );
 
-    if (loading) return <div className="p-8 text-center text-slate-500">Loading documents...</div>;
+    const activeDocs = docs.filter(d => getStatus(d.expiryDate) === 'Active').length;
+    const expiredDocs = docs.filter(d => getStatus(d.expiryDate) === 'Expired').length;
+    const expiringSoonDocs = docs.filter(d => getStatus(d.expiryDate) === 'Expiring Soon').length;
 
     return (
-        <div className="p-6 bg-[#f8f9fa] min-h-screen font-sans">
-            <div className="flex justify-between items-start mb-6">
+        <div className="p-8 bg-slate-50 min-h-screen font-sans">
+            <header className="flex justify-between items-end mb-10">
                 <div>
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        Vehicle Documents
-                        <span className="text-[10px] font-normal text-slate-400 flex items-center gap-1 ml-2">
-                            Dashboard <ChevronRight size={10} /> Vehicle Documents
-                        </span>
-                    </h2>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-bold text-orange-500 uppercase tracking-[0.2em] bg-orange-50 px-2 py-1 rounded-md border border-orange-100">Compliance Vault</span>
+                    </div>
+                    <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Vehicle Documents</h2>
+                    <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs font-semibold text-slate-400">Dashboard</span>
+                        <ChevronRight size={12} className="text-slate-300" />
+                        <span className="text-xs font-bold text-slate-800">Compliance Vault</span>
+                    </div>
                 </div>
-                <button
-                    onClick={() => setShowStats(!showStats)}
-                    className="flex items-center gap-2 px-3 py-1.5 border border-indigo-200 text-indigo-600 rounded text-[11px] font-bold uppercase tracking-tight hover:bg-indigo-50 transition-colors"
-                >
-                    {showStats ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    {showStats ? 'Hide Statistics & Charts' : 'Show Statistics & Charts'}
-                </button>
-            </div>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setShowStats(!showStats)}
+                        className={`flex items-center gap-2 px-6 py-3.5 rounded-[1.25rem] text-[11px] font-bold uppercase transition-all shadow-sm border ${showStats ? 'bg-orange-600 border-orange-600 text-white shadow-orange-600/20' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:shadow-md'}`}
+                    >
+                        {showStats ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        {showStats ? 'Hide Overview' : 'Show Overview'}
+                    </button>
+                    <button className="flex items-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-[1.25rem] hover:bg-black font-bold text-[11px] uppercase transition-all shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-[0.98]">
+                        <Plus size={16} /> Import Record
+                    </button>
+                </div>
+            </header>
 
             {showStats && (
-                <>
+                <div className="animate-in slide-in-from-top-4 duration-500">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                        {stats.map((stat, i) => (
-                            <div key={i} className="bg-white p-5 rounded-lg shadow-sm border border-slate-100 relative group">
-                                <div className={`absolute top-4 right-4 px-2 py-0.5 rounded text-[8px] font-black text-white uppercase ${stat.badgeColor}`}>
-                                    {stat.badge}
+                        {/* Total Docs */}
+                        <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                            <div className="absolute top-0 left-0 w-2 h-full bg-slate-800" />
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-slate-50 rounded-2xl">
+                                    <FolderOpen size={20} className="text-slate-800" />
                                 </div>
-                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight mb-2">{stat.label}</p>
-                                <h3 className="text-3xl font-bold text-slate-800 mb-2">{stat.value}</h3>
-                                <p className="text-[10px] text-slate-400">{stat.sub}</p>
+                                <div className="px-3 py-1 bg-slate-100 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-200">Total</div>
                             </div>
-                        ))}
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Vault Records</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">{docs.length}</h3>
+                            <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                                    <span>Excluding Renewals</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Active Docs */}
+                        <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                            <div className="absolute top-0 left-0 w-2 h-full bg-green-500" />
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-green-50 rounded-2xl">
+                                    <ShieldCheck size={20} className="text-green-600" />
+                                </div>
+                                <div className="px-3 py-1 bg-green-50 rounded-full text-[9px] font-black text-green-600 uppercase tracking-widest border border-green-100">Compliant</div>
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Active Documents</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">{activeDocs}</h3>
+                            <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                                    <span>Verified Secure</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Expiring Soon */}
+                        <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                            <div className="absolute top-0 left-0 w-2 h-full bg-orange-500" />
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-orange-50 rounded-2xl">
+                                    <Clock size={20} className="text-orange-600" />
+                                </div>
+                                <div className="px-3 py-1 bg-orange-50 rounded-full text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">Action Required</div>
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Expiring Soon</p>
+                            <h3 className="text-3xl font-black text-orange-600 tracking-tighter mb-4 pl-2">{expiringSoonDocs}</h3>
+                            <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                                    <span>Next 30 Days</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Expired */}
+                        <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                            <div className="absolute top-0 left-0 w-2 h-full bg-red-500" />
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 bg-red-50 rounded-2xl">
+                                    <AlertTriangle size={20} className="text-red-600" />
+                                </div>
+                                <div className="px-3 py-1 bg-red-50 rounded-full text-[9px] font-black text-red-600 uppercase tracking-widest border border-red-100 animate-pulse">Critical</div>
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Expired Records</p>
+                            <h3 className="text-3xl font-black text-red-600 tracking-tighter mb-4 pl-2">{expiredDocs}</h3>
+                            <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                                    <span>Immediate Renewal Required</span>
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                        <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                            <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-6 px-1">Document Status Distribution</h3>
-                            <div className="flex flex-col items-center py-4">
-                                <div className={`w-48 h-48 rounded-full border-[24px] shadow-inner relative flex items-center justify-center transition-all duration-500 ${docs.length > 0
-                                        ? 'border-slate-50 border-t-emerald-500 border-l-rose-500 border-r-amber-500'
-                                        : 'border-slate-100'
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                        <div className="bg-white p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/80 flex flex-col">
+                            <h3 className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] flex items-center gap-3 mb-8">
+                                <ShieldCheck size={16} className="text-orange-500" /> Compliance Distribution
+                            </h3>
+                            <div className="flex-1 flex flex-col items-center justify-center">
+                                <div className={`relative w-48 h-48 rounded-full border-[24px] shadow-inner transition-all duration-500 ${docs.length > 0
+                                    ? 'border-slate-50 border-t-green-500 border-l-red-500 border-r-orange-500'
+                                    : 'border-slate-50'
                                     }`}>
-                                    <div className="text-center">
-                                        <span className="text-2xl font-black text-slate-800 font-bold">{docs.length}</span>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Total</p>
-                                    </div>
+                                    {docs.length > 0 && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                            <span className="text-4xl font-black text-slate-900 tracking-tighter">{docs.length}</span>
+                                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Total</p>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="mt-8 flex gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-3 h-3 rounded ${docs.length > 0 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
-                                        <span className="text-[10px] font-bold text-slate-500 uppercase">Active</span>
+                                <div className="mt-10 grid grid-cols-1 gap-y-4 w-full px-6">
+                                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-2.5 h-2.5 rounded-sm bg-green-500" />
+                                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Active</span>
+                                        </div>
+                                        <span className="text-xs font-black text-slate-900">{activeDocs}</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-3 h-3 rounded ${docs.length > 0 ? 'bg-rose-500' : 'bg-slate-200'}`} />
-                                        <span className="text-[10px] font-bold text-slate-500 uppercase">Expired</span>
+                                    <div className="flex items-center justify-between p-3 bg-red-50 rounded-xl border border-red-100 bg-red-50">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-2.5 h-2.5 rounded-sm bg-red-500 animate-pulse" />
+                                            <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest">Expired</span>
+                                        </div>
+                                        <span className="text-xs font-black text-red-600">{expiredDocs}</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-3 h-3 rounded ${docs.length > 0 ? 'bg-amber-500' : 'bg-slate-200'}`} />
-                                        <span className="text-[10px] font-bold text-slate-500 uppercase">Expiring Soon</span>
+                                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-2.5 h-2.5 rounded-sm bg-orange-500" />
+                                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Expiring Soon</span>
+                                        </div>
+                                        <span className="text-xs font-black text-slate-900">{expiringSoonDocs}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                            <div className="flex justify-between items-center mb-6 px-1">
-                                <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest">Document Expiry Timeline</h3>
-                                <div className="flex gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-3 h-3 rounded ${docs.length > 0 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
-                                        <span className="text-[10px] font-bold text-slate-500 uppercase">Next 6 Months</span>
+                        <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/80 flex flex-col">
+                            <div className="flex justify-between items-center mb-10">
+                                <h3 className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] flex items-center gap-3">
+                                    <Clock size={16} className="text-orange-500" /> Expiry Timeline
+                                </h3>
+                                <div className="flex gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-100">
+                                    <div className="flex items-center gap-2 px-2">
+                                        <div className={`w-2.5 h-2.5 rounded-sm ${docs.length > 0 ? 'bg-orange-500' : 'bg-slate-300'}`} />
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Next 6 Months</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="h-64 flex flex-col justify-end">
-                                <div className="flex-1 border-b border-slate-100 relative">
-                                    <div className="absolute bottom-0 left-10 w-full h-full flex justify-around items-end px-10">
-                                        {['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'].map((m, idx) => {
-                                            // Simple logic to show bars only if data exists for that month
-                                            // For now, if docs > 0, we show a small bar as placeholder for "active" documents in that month
-                                            const hasData = docs.length > 0;
-                                            return (
-                                                <div key={idx} className="flex flex-col items-center gap-2 group relative">
-                                                    <div className={`w-4 rounded-t transition-all duration-500 ${hasData ? 'bg-emerald-100 h-10 group-hover:bg-emerald-200' : 'bg-slate-50 h-2'
-                                                        }`} />
-                                                    <span className="text-[9px] text-slate-400 font-bold uppercase">{m}</span>
+                            <div className="flex-1 border-b-2 border-slate-100 relative mt-4 mx-4 mb-6">
+                                <div className="absolute inset-x-0 bottom-0 h-full flex justify-around items-end px-8 gap-6 z-10">
+                                    {['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'].map((m) => {
+                                        const hasData = docs.length > 0;
+                                        return (
+                                            <div key={m} className="flex-1 flex flex-col items-center gap-4 group relative h-full justify-end">
+                                                <div className="absolute -top-12 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl whitespace-nowrap z-20 shadow-xl pointer-events-none">
+                                                    {m} Expiries
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
+                                                <div className="relative w-full max-w-[48px] h-full flex items-end">
+                                                    <div className={`w-full rounded-t-xl transition-all duration-700 ease-out flex flex-col justify-end
+                                                        ${hasData ? 'bg-orange-100 shadow-[0_-4px_20px_rgba(249,115,22,0.1)] h-[35%] group-hover:h-[40%]' : 'bg-slate-50 h-[5%]'}`}
+                                                    >
+                                                        <div className={`w-full rounded-t-xl ${hasData ? 'bg-orange-500' : ''}`} style={{ height: '70%' }}></div>
+                                                    </div>
+                                                </div>
+                                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">{m}</span>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
                     </div>
-                </>
+                </div>
             )}
 
-            <div className="bg-[#f0f2f5] px-6 py-2 rounded-lg border border-slate-200 mb-6 flex items-center justify-between text-slate-600">
-                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-tight cursor-pointer hover:text-indigo-600 transition-colors">
-                    <ChevronDown size={14} className="text-slate-400" />
-                    <Filter size={14} className="text-indigo-600" /> Filter Options <span className="text-slate-400 font-normal ml-1">(Alt+F)</span>
+            <div className="bg-white px-8 py-5 rounded-[1.5rem] border border-slate-200/80 mb-6 flex items-center justify-between text-slate-600 cursor-pointer hover:border-orange-500/50 hover:shadow-md transition-all group">
+                <div className="flex items-center gap-4">
+                    <div className="p-2 bg-orange-50 rounded-xl group-hover:bg-orange-100 transition-colors">
+                        <Filter size={18} className="text-orange-600" />
+                    </div>
+                    <div>
+                        <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-800 block">Search & Filter</span>
+                        <span className="text-[10px] font-bold text-slate-400 tracking-widest uppercase mt-0.5 block">Configure Vault View Criteria</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-6">
+                    <div className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center group-hover:border-orange-200 group-hover:bg-orange-50 transition-colors">
+                        <ChevronDown size={16} className="text-slate-400 group-hover:text-orange-600" />
+                    </div>
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-                <div className="px-6 py-4 flex justify-between items-center border-b border-slate-50">
-                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-tight">Vehicle Documents List</h3>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-indigo-700 text-white rounded-md hover:bg-indigo-800 text-[11px] font-bold uppercase tracking-wider shadow-sm transition-all">
-                        <Plus size={16} /> Add Document
+            <div className="bg-white rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/80 overflow-hidden group/table hover:border-orange-500/30 transition-colors duration-500">
+                <div className="px-8 py-6 flex justify-between items-center bg-slate-50/50 border-b border-slate-50">
+                    <h3 className="text-xs font-bold text-slate-600 uppercase tracking-[0.2em] flex items-center gap-3">
+                        <FileText size={16} className="text-orange-500" /> Vault Ledger
+                    </h3>
+                    <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-black text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-slate-900/20 transition-all hover:scale-[1.02]">
+                        <Plus size={14} strokeWidth={3} /> Record Document
                     </button>
                 </div>
 
-                <div className="px-6 py-4 flex flex-wrap justify-between items-center gap-4 bg-white">
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
-                        Show
-                        <select className="border border-slate-200 rounded px-2 py-1 bg-white outline-none">
-                            <option>25</option>
-                            <option>50</option>
-                            <option>100</option>
-                        </select>
-                        entries
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <button className="px-3 py-1.5 border border-slate-200 rounded text-[10px] font-bold text-slate-500 hover:bg-slate-50 transition-colors flex items-center gap-1.5"><Printer size={12} /> Print</button>
-                        <button className="px-3 py-1.5 border border-slate-200 rounded text-[10px] font-bold text-slate-500 hover:bg-slate-50 transition-colors flex items-center gap-1.5"><FileSpreadsheet size={12} className="text-emerald-500" /> Excel</button>
-                        <button className="px-3 py-1.5 border border-slate-200 rounded text-[10px] font-bold text-slate-500 hover:bg-slate-50 transition-colors flex items-center gap-1.5"><FileJson size={12} className="text-rose-500" /> PDF</button>
-                        <button className="px-3 py-1.5 border border-slate-200 rounded text-[10px] font-bold text-slate-500 hover:bg-slate-50 transition-colors flex items-center gap-1.5"><FileText size={12} className="text-blue-500" /> CSV</button>
+                <div className="px-8 py-5 flex flex-wrap justify-between items-center gap-4 bg-white border-b border-slate-50/50">
+                    <div className="flex items-center gap-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                        Displaying
+                        <div className="relative">
+                            <select className="appearance-none border border-slate-200/80 rounded-lg pl-4 pr-8 py-2 bg-slate-50 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 text-slate-700 font-black cursor-pointer">
+                                <option>25</option>
+                                <option>50</option>
+                                <option>100</option>
+                            </select>
+                            <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                        </div>
+                        Rows per view
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-slate-500 font-medium">Search:</span>
-                        <input type="text" className="border border-slate-200 rounded px-3 py-1.5 text-xs outline-none focus:border-indigo-500 transition-colors w-48" />
+                        <button className="px-4 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:bg-white hover:border-orange-500/50 hover:text-orange-600 transition-all flex items-center gap-2"><Printer size={14} /> Print</button>
+                        <button className="px-4 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:bg-white hover:border-orange-500/50 hover:text-orange-600 transition-all flex items-center gap-2"><FileSpreadsheet size={14} /> Excel</button>
+                        <button className="px-4 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:bg-white hover:border-red-500/50 hover:text-red-600 transition-all flex items-center gap-2"><FileJson size={14} /> PDF</button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Search:</span>
+                        <input type="text" placeholder="Search parameters..." className="border border-slate-200/80 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all w-64 bg-slate-50 placeholder:text-slate-300 placeholder:font-semibold" />
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-[#fcfdfe] text-[10px] font-bold uppercase text-slate-500 border-y border-slate-100">
-                            <tr>
-                                <th className="px-6 py-4 border-r border-slate-50">Vehicle</th>
-                                <th className="px-6 py-4 border-r border-slate-50">Document Type</th>
-                                <th className="px-6 py-4 border-r border-slate-50">Document Number</th>
-                                <th className="px-6 py-4 border-r border-slate-50 text-center">Issue Date</th>
-                                <th className="px-6 py-4 border-r border-slate-50 text-center">Expiry Date</th>
-                                <th className="px-6 py-4 border-r border-slate-50 text-center">Status</th>
-                                <th className="px-6 py-4 border-r border-slate-50">Reminder</th>
-                                <th className="px-6 py-4 text-center">Actions</th>
+                <div className="overflow-x-auto pb-8">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50/30 text-[10px] font-bold uppercase text-slate-400 border-b border-slate-100 tracking-[0.15em]">
+                                <th className="px-8 py-6">Vehicle</th>
+                                <th className="px-8 py-6">Classification</th>
+                                <th className="px-8 py-6">Reference No.</th>
+                                <th className="px-8 py-6 text-center">Origination</th>
+                                <th className="px-8 py-6 text-center">Expiration</th>
+                                <th className="px-8 py-6 text-center">Validity</th>
+                                <th className="px-8 py-6 text-right">Horizon</th>
+                                <th className="px-8 py-6 text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-50/80 text-[11px]">
                             {docs.map((doc, i) => {
                                 const status = getStatus(doc.expiryDate);
                                 return (
-                                    <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-6 py-4 font-medium text-slate-800 text-xs border-r border-slate-50">{doc.Lorry?.vehicleNumber || 'Unassigned'}</td>
-                                        <td className="px-6 py-4 text-[11px] text-slate-600 font-medium border-r border-slate-50">{doc.documentType}</td>
-                                        <td className="px-6 py-4 text-[11px] font-medium text-slate-600 border-r border-slate-50">{doc.documentNumber}</td>
-                                        <td className="px-6 py-4 text-center text-[11px] text-slate-500 border-r border-slate-50">{doc.issueDate}</td>
-                                        <td className="px-6 py-4 text-center text-[11px] text-slate-500 border-r border-slate-50">{doc.expiryDate}</td>
-                                        <td className="px-6 py-4 text-center border-r border-slate-50">
-                                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-tighter 
-                                                ${status === 'Active' ? 'bg-[#edf7ee] text-[#4caf50]' :
-                                                    status === 'Expired' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'}`}>
+                                    <tr key={i} className="hover:bg-slate-50/50 transition-colors bg-white group">
+                                        <td className="px-8 py-5">
+                                            <div className="text-[14px] font-black text-slate-900 tracking-tight">{doc.Lorry?.vehicleNumber || 'Unassigned'}</div>
+                                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Heavy Carrier</div>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <span className="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-700 text-[10px] font-bold uppercase border border-slate-200 tracking-[0.1em]">
+                                                {doc.documentType}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <div className="text-xs font-black text-orange-600 tracking-tight">{doc.documentNumber}</div>
+                                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 italic">Official Identifier</div>
+                                        </td>
+                                        <td className="px-8 py-5 text-center">
+                                            <div className="text-[11px] font-bold text-slate-600 tracking-wider bg-slate-50 px-3 py-1.5 rounded-lg inline-block">{doc.issueDate}</div>
+                                        </td>
+                                        <td className="px-8 py-5 text-center">
+                                            <div className="text-[11px] font-bold text-slate-800 tracking-wider bg-slate-100 px-3 py-1.5 rounded-lg inline-block border border-slate-200">{doc.expiryDate}</div>
+                                        </td>
+                                        <td className="px-8 py-5 text-center">
+                                            <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm
+                                                ${status === 'Active' ? 'bg-green-500 text-white' :
+                                                    status === 'Expired' ? 'bg-red-500 text-white animate-pulse' : 'bg-orange-500 text-white'}`}>
                                                 {status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 border-r border-slate-50">
-                                            <span className={`text-[11px] font-medium ${status === 'Active' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                        <td className="px-8 py-5 text-right">
+                                            <span className={`text-[12px] font-black tracking-tighter ${status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>
                                                 {getRemainingTime(doc.expiryDate)}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button className="p-1.5 text-indigo-500 hover:bg-indigo-50 rounded transition-colors"><Eye size={12} /></button>
-                                                <button className="p-1.5 text-blue-500 hover:bg-blue-50 rounded transition-colors"><Edit2 size={12} /></button>
-                                                <button className="p-1.5 text-emerald-500 hover:bg-emerald-50 rounded transition-colors"><RotateCcw size={12} /></button>
-                                                <button className="p-1.5 text-rose-500 hover:bg-rose-50 rounded transition-colors"><Trash2 size={12} /></button>
+                                        <td className="px-8 py-5 text-center">
+                                            <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button className="p-2 bg-slate-50 border border-slate-200 text-orange-500 rounded-lg hover:bg-orange-50 hover:border-orange-200 transition-colors shadow-sm"><Eye size={14} /></button>
+                                                <button className="p-2 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors shadow-sm"><Edit2 size={14} /></button>
+                                                <button className="p-2 bg-slate-50 border border-slate-200 text-red-500 rounded-lg hover:bg-red-50 hover:border-red-200 transition-colors shadow-sm"><Trash2 size={14} /></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -280,24 +374,33 @@ export default function VehicleDocuments() {
                         </tbody>
                     </table>
                     {docs.length === 0 && (
-                        <div className="p-12 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">No Documents Found</div>
+                        <div className="p-16 flex flex-col items-center justify-center text-center">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                <FolderOpen size={24} className="text-slate-300" />
+                            </div>
+                            <p className="text-sm font-bold text-slate-600 uppercase tracking-widest">No Documents Found</p>
+                            <p className="text-[11px] text-slate-400 mt-2 font-medium">Vault query returned zero results</p>
+                        </div>
                     )}
                 </div>
 
-                <div className="px-6 py-4 bg-white border-t border-slate-100 flex justify-end">
-                    <div className="flex border border-slate-200 rounded overflow-hidden">
-                        <button className="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-400 bg-[#f8f9fa] border-r border-slate-200">Previous</button>
-                        <button className="px-3 py-1.5 text-[10px] font-bold text-white bg-indigo-700">1</button>
-                        <button className="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-600 hover:bg-slate-50">Next</button>
+                <div className="px-8 py-5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        Displaying Resource 1 to {Math.max(docs.length, 1)} of {docs.length} Entries
+                    </span>
+                    <div className="flex bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm p-1 gap-1">
+                        <button className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:bg-slate-50 rounded-lg transition-colors">Prev</button>
+                        <button className="px-4 py-2 text-[10px] font-black text-white bg-slate-900 rounded-lg shadow-sm">1</button>
+                        <button className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">Next</button>
                     </div>
                 </div>
             </div>
 
-            <div className="mt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-                <div>© 2026 - Lorio</div>
-                <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-indigo-600 rounded flex items-center justify-center text-[8px] text-white">L</div>
-                    Lorio | All rights reserved
+            <div className="mt-8 flex justify-between items-center px-4">
+                <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">© 2026 LORIO Systems • Institutional Grade</div>
+                <div className="flex items-center gap-2 text-orange-500 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest">Vault Secured</span>
                 </div>
             </div>
         </div>

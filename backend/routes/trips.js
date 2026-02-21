@@ -7,12 +7,25 @@ router.get('/', async (req, res) => {
     try {
         const trips = await Trip.findAll({
             include: [
-                { model: Lorry, attributes: ['vehicleNumber'] },
+                { model: Lorry, attributes: ['id', 'vehicleNumber', 'currentLocation'] },
                 { model: User, as: 'Driver', attributes: ['name', 'phone'] },
                 { model: Booking, attributes: ['goodsType', 'estimatedCost'] }
             ]
         });
         res.json(trips);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// GET trip live location from assigned lorry
+router.get('/:id/location', async (req, res) => {
+    try {
+        const trip = await Trip.findByPk(req.params.id, {
+            include: [{ model: Lorry, attributes: ['currentLocation'] }]
+        });
+        if (!trip || !trip.Lorry) return res.status(404).json({ message: 'Not found' });
+        res.json({ currentLocation: trip.Lorry.currentLocation });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

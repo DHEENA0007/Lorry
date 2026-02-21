@@ -62,7 +62,7 @@ export default function DocumentExpiryReport() {
     const soonCount = docs.filter(d => getDocStatus(d.expiryDate) === 'soon').length;
     const validCount = docs.filter(d => getDocStatus(d.expiryDate) === 'valid').length;
 
-    if (loading) return <div className="p-8 text-center text-slate-500">Loading Expiry Matrix...</div>;
+    if (loading) return <div className="p-8 text-center text-slate-500">Loading Expiring Documents...</div>;
 
     return (
         <div className="p-6 bg-[#f8f9fa] min-h-screen font-sans">
@@ -78,21 +78,76 @@ export default function DocumentExpiryReport() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-100">
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight mb-2">Total Documents</p>
-                    <h3 className="text-3xl font-bold text-slate-700">{totalDocs}</h3>
+                {/* Total Docs */}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-slate-800" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-slate-100 transition-colors">
+                            <FileSpreadsheet size={20} className="text-slate-800" />
+                        </div>
+                        <div className="px-3 py-1 bg-slate-100 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-200">Total</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Total Documents</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">{totalDocs}</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Tracked Records</span>
+                        </p>
+                    </div>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-100">
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight mb-2">Expired</p>
-                    <h3 className="text-3xl font-bold text-rose-500">{expiredCount}</h3>
+
+                {/* Expired Docs */}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-red-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-red-50 rounded-2xl group-hover:bg-red-100 transition-colors">
+                            <span className="text-lg font-bold text-red-600">⚠</span>
+                        </div>
+                        <div className="px-3 py-1 bg-red-50 rounded-full text-[9px] font-black text-red-600 uppercase tracking-widest border border-red-100 animate-pulse">Critical</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Expired</p>
+                    <h3 className="text-3xl font-black text-red-600 tracking-tighter mb-4 pl-2">{expiredCount}</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Immediate Action</span>
+                        </p>
+                    </div>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-100">
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight mb-2">Expiring Soon</p>
-                    <h3 className="text-3xl font-bold text-amber-500">{soonCount}</h3>
+
+                {/* Expiring Soon */}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-orange-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-orange-50 rounded-2xl group-hover:bg-orange-100 transition-colors">
+                            <span className="text-lg font-bold text-orange-600">⏱</span>
+                        </div>
+                        <div className="px-3 py-1 bg-orange-50 rounded-full text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">Warning</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Expiring Soon</p>
+                    <h3 className="text-3xl font-black text-orange-600 tracking-tighter mb-4 pl-2">{soonCount}</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Next 30 Days</span>
+                        </p>
+                    </div>
                 </div>
-                <div className="bg-white p-5 rounded-lg shadow-sm border border-slate-100">
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-tight mb-2">Valid</p>
-                    <h3 className="text-3xl font-bold text-emerald-500">{validCount}</h3>
+
+                {/* Valid Docs */}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-green-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-green-50 rounded-2xl group-hover:bg-green-100 transition-colors">
+                            <span className="text-lg font-bold text-green-600">✓</span>
+                        </div>
+                        <div className="px-3 py-1 bg-green-50 rounded-full text-[9px] font-black text-green-600 uppercase tracking-widest border border-green-100">Secure</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Valid</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">{validCount}</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Compliant Records</span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -105,7 +160,7 @@ export default function DocumentExpiryReport() {
                         <span className="text-[10px] font-bold text-slate-500">More than 30 days</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 bg-amber-500 text-white text-[9px] font-black uppercase rounded shadow-sm">Expiring Soon</span>
+                        <span className="px-3 py-1 bg-red-500 text-white text-[9px] font-black uppercase rounded shadow-sm">Expiring Soon</span>
                         <span className="text-[10px] font-bold text-slate-500">Within 30 days</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -122,11 +177,11 @@ export default function DocumentExpiryReport() {
             {/* Expiry Matrix Table */}
             <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
                 <div className="px-6 py-4 flex justify-between items-center border-b border-slate-50 bg-[#fafafa]">
-                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-tight">Vehicle Document Expiry Matrix</h3>
+                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-tight">Expiring Documents Table</h3>
                     <div className="flex gap-2">
                         <button
                             onClick={loadData}
-                            className="flex items-center gap-2 px-3 py-1.5 border border-indigo-200 text-indigo-600 rounded text-[10px] font-black uppercase tracking-widest bg-white hover:bg-slate-50 transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 border border-orange-200 text-orange-600 rounded text-[10px] font-black uppercase tracking-widest bg-white hover:bg-slate-50 transition-colors"
                         >
                             <RefreshCcw size={12} /> Refresh
                         </button>
@@ -160,7 +215,7 @@ export default function DocumentExpiryReport() {
 
                                         let cellClass = "bg-[#546e7a] text-white/80"; // N/A style
                                         if (status === 'valid') cellClass = "bg-[#2e7d32] text-white";
-                                        if (status === 'soon') cellClass = "bg-amber-500 text-white";
+                                        if (status === 'soon') cellClass = "bg-red-500 text-white";
                                         if (status === 'expired') cellClass = "bg-[#c62828] text-white";
 
                                         return (

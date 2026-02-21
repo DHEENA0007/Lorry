@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Camera, MapPin, CheckCircle, XCircle } from 'lucide-react';
+import { Camera, MapPin, CheckCircle, XCircle, ChevronRight } from 'lucide-react';
 import { fetchData, updateData } from '../services/api';
 
 export default function PODVerification() {
@@ -35,16 +35,33 @@ export default function PODVerification() {
     };
 
     return (
-        <div className="p-8">
-            <h2 className="text-3xl font-bold mb-6 text-slate-800">POD Verification</h2>
+        <div className="p-8 bg-slate-50 min-h-screen font-sans">
+            <header className="flex justify-between items-end mb-10">
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-bold text-orange-500 uppercase tracking-[0.2em] bg-orange-50 px-2 py-1 rounded-md border border-orange-100">Quality Control</span>
+                    </div>
+                    <h2 className="text-3xl font-bold text-slate-900 tracking-tight">POD Verification</h2>
+                    <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs font-semibold text-slate-400">App</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="text-xs font-bold text-orange-600">Verification</span>
+                    </div>
+                </div>
+            </header>
 
             {loading ? (
-                <div className="text-slate-500">Loading PODs...</div>
+                <div className="flex flex-col items-center justify-center py-20">
+                    <div className="w-12 h-12 border-[5px] border-slate-100 border-t-orange-600 rounded-full animate-spin mb-6 shadow-xl" />
+                    <p className="text-[11px] font-bold text-slate-400 tracking-[0.2em] uppercase">Fetching Delivery Records...</p>
+                </div>
             ) : trips.length === 0 ? (
-                <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-12 text-center text-slate-400">
-                    <Camera size={48} className="mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium text-slate-600">No Pending PODs</h3>
-                    <p>All delivery proofs have been verified.</p>
+                <div className="bg-white rounded-[2.5rem] border border-slate-100/80 p-24 text-center shadow-sm flex flex-col items-center justify-center">
+                    <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-6">
+                        <Camera size={48} strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 tracking-tight mb-2">No Pending Verifications</h3>
+                    <p className="text-sm font-medium text-slate-400 max-w-sm">All proof of delivery documents have been thoroughly reviewed and verified by the team.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -74,8 +91,8 @@ export default function PODVerification() {
                                         <p className="text-sm text-slate-500 font-medium">{trip.source} &rarr; {trip.destination}</p>
                                     </div>
                                     <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide 
-                                        ${trip.podStatus === 'Verified' ? 'bg-emerald-100 text-emerald-700' :
-                                            trip.podStatus === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                                        ${trip.podStatus === 'Verified' ? 'bg-slate-100 text-slate-700' :
+                                            trip.podStatus === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-red-100 text-red-700'}`}>
                                         {trip.podStatus || 'Pending'}
                                     </span>
                                 </div>
@@ -99,7 +116,7 @@ export default function PODVerification() {
                                     <button
                                         onClick={() => handleVerify(trip.id, 'Verified')}
                                         disabled={trip.podStatus === 'Verified'}
-                                        className="py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95">
+                                        className="py-2.5 bg-slate-600 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95">
                                         <CheckCircle size={16} /> Verify
                                     </button>
                                     <button
@@ -113,7 +130,8 @@ export default function PODVerification() {
                         </div>
                     ))}
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

@@ -23,7 +23,7 @@ export default function Financials() {
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
-            <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4" />
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-orange-600 rounded-full animate-spin mb-4" />
             <p className="text-xs font-semibold text-slate-500">Compiling Financial Ledger...</p>
         </div>
     );
@@ -45,7 +45,7 @@ export default function Financials() {
                     <div className="flex items-center gap-2 mt-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Accounts</span>
                         <ChevronRight size={10} className="text-slate-300" />
-                        <span className="text-[11px] font-semibold text-indigo-500 uppercase tracking-widest">P&L Analytics</span>
+                        <span className="text-[11px] font-semibold text-orange-500 uppercase tracking-widest">P&L Analytics</span>
                     </div>
                 </div>
                 <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 font-bold text-xs transition-all shadow-sm">
@@ -55,22 +55,77 @@ export default function Financials() {
 
             {/* Summary Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-                {[
-                    { label: 'Total Revenue', value: summary.totalRevenue, trend: 'up', icon: <TrendingUp size={16} className="text-emerald-500" /> },
-                    { label: 'Total Expenses', value: summary.totalExpenses, trend: 'down', icon: <TrendingDown size={16} className="text-rose-500" /> },
-                    { label: 'Net Profit', value: summary.netProfit, highlight: true },
-                    { label: 'Profit Margin', value: `${summary.margin}%`, color: 'text-indigo-600' }
-                ].map((stat, i) => (
-                    <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 group hover:border-indigo-100 transition-all">
-                        <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">{stat.label}</h3>
-                        <div className="flex items-center gap-2">
-                            <span className={`text-2xl font-bold tracking-tight ${stat.highlight ? (summary.netProfit >= 0 ? 'text-emerald-600' : 'text-rose-600') : (stat.color || 'text-slate-800')}`}>
-                                {typeof stat.value === 'number' ? `₹${stat.value.toLocaleString()}` : stat.value}
-                            </span>
-                            {stat.icon}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-slate-800" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-slate-100 transition-colors">
+                            <TrendingUp size={20} className="text-slate-800" />
                         </div>
+                        <div className="px-3 py-1 bg-slate-100 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-200">Gross</div>
                     </div>
-                ))}
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Total Revenue</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">₹{summary.totalRevenue.toLocaleString()}</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Income Generated</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-red-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-red-50 rounded-2xl group-hover:bg-red-100 transition-colors">
+                            <TrendingDown size={20} className="text-red-600" />
+                        </div>
+                        <div className="px-3 py-1 bg-red-50 rounded-full text-[9px] font-black text-red-600 uppercase tracking-widest border border-red-100">Outflow</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Total Expenses</p>
+                    <h3 className="text-3xl font-black text-red-600 tracking-tighter mb-4 pl-2">₹{summary.totalExpenses.toLocaleString()}</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Operating Costs</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-green-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-green-50 rounded-2xl group-hover:bg-green-100 transition-colors">
+                            <DollarSign size={20} className="text-green-600" />
+                        </div>
+                        <div className="px-3 py-1 bg-green-50 rounded-full text-[9px] font-black text-green-600 uppercase tracking-widest border border-green-100">Net Return</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Net Profit</p>
+                    <h3 className={`text-3xl font-black ${summary.netProfit >= 0 ? 'text-green-600' : 'text-red-500'} tracking-tighter mb-4 pl-2`}>
+                        ₹{summary.netProfit.toLocaleString()}
+                    </h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Bottom Line</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-orange-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-orange-50 rounded-2xl group-hover:bg-orange-100 transition-colors">
+                            <Activity size={20} className="text-orange-600" />
+                        </div>
+                        <div className="px-3 py-1 bg-orange-50 rounded-full text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">Efficiency</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Profit Margin</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">
+                        {summary.margin}%
+                    </h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Performance Ratio</span>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {/* Charts Section */}
@@ -78,7 +133,7 @@ export default function Financials() {
                 <div className="lg:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200/60">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                            <BarChart2 size={16} className="text-indigo-400" /> Monthly Revenue Trend
+                            <BarChart2 size={16} className="text-orange-400" /> Monthly Revenue Trend
                         </h3>
                     </div>
                     <div className="h-64 flex items-end gap-6 border-b border-slate-100 pb-3 p-4">
@@ -92,7 +147,7 @@ export default function Financials() {
                                             ₹{value.toLocaleString()}
                                         </div>
                                         <div
-                                            className="w-full bg-slate-50 group-hover:bg-indigo-600 rounded-t-xl transition-all duration-700 shadow-sm"
+                                            className="w-full bg-slate-50 group-hover:bg-orange-600 rounded-t-xl transition-all duration-700 shadow-sm"
                                             style={{ height: `${height}%`, minHeight: value > 0 ? '6px' : '0' }}
                                         />
                                     </div>
@@ -105,7 +160,7 @@ export default function Financials() {
 
                 <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200/60">
                     <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-8">
-                        <PieChart size={16} className="text-indigo-400" /> Allocation Breakdown
+                        <PieChart size={16} className="text-orange-400" /> Allocation Breakdown
                     </h3>
                     <div className="h-56 flex items-center justify-center relative mb-8">
                         <div
@@ -127,7 +182,7 @@ export default function Financials() {
                     </div>
                     <div className="space-y-3">
                         {Object.entries(data.costDistribution).map(([category, amount], idx) => {
-                            const colors = ['bg-indigo-500', 'bg-emerald-500', 'bg-rose-500', 'bg-amber-500'];
+                            const colors = ['bg-orange-500', 'bg-slate-500', 'bg-red-500', 'bg-red-500'];
                             const total = Object.values(data.costDistribution).reduce((a, b) => a + b, 0);
                             const perc = total > 0 ? Math.round((amount / total) * 100) : 0;
                             return (
@@ -167,11 +222,11 @@ export default function Financials() {
                                     <td className="px-8 py-5 text-slate-500 font-semibold text-xs">{new Date(t.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</td>
                                     <td className="px-8 py-5 font-mono text-[10px] text-slate-400 font-semibold">{t.id}</td>
                                     <td className="px-8 py-5 font-bold text-slate-800 text-xs tracking-tight uppercase">{t.desc}</td>
-                                    <td className={`px-8 py-5 text-right font-bold text-xs ${t.type === 'credit' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                    <td className={`px-8 py-5 text-right font-bold text-xs ${t.type === 'credit' ? 'text-slate-600' : 'text-red-600'}`}>
                                         {t.type === 'credit' ? '+' : '-'}₹{t.amount.toLocaleString()}
                                     </td>
                                     <td className="px-8 py-5 text-right">
-                                        <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${t.type === 'credit' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                                        <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${t.type === 'credit' ? 'bg-slate-50 text-slate-600 border border-slate-100' : 'bg-red-50 text-red-600 border border-red-100'}`}>
                                             {t.type}
                                         </span>
                                     </td>

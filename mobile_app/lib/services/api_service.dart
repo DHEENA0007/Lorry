@@ -81,6 +81,17 @@ class ApiService {
            return jsonDecode(response.body);
        } else {
            throw Exception('Failed to fetch bookings');
+   }
+
+   // -- Update Location (Live Driver Tracking) --
+   static Future<void> updateLorryLocation(int lorryId, String location) async {
+       final response = await http.post(
+           Uri.parse('$baseUrl/lorries/$lorryId/location'),
+           headers: {'Content-Type': 'application/json'},
+           body: jsonEncode({'location': location}),
+       );
+       if (response.statusCode != 200) {
+           throw Exception('Failed to update lorry location');
        }
    }
 }

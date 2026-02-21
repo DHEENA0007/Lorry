@@ -28,15 +28,15 @@ export default function AuditLogs() {
     };
 
     const getActionStyle = (action) => {
-        if (action.includes('CREATE')) return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-        if (action.includes('UPDATE')) return 'bg-amber-50 text-amber-600 border-amber-100';
-        if (action.includes('DELETE')) return 'bg-rose-50 text-rose-600 border-rose-100';
-        return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+        if (action.includes('CREATE')) return 'bg-slate-50 text-slate-600 border-slate-100';
+        if (action.includes('UPDATE')) return 'bg-red-50 text-red-600 border-red-100';
+        if (action.includes('DELETE')) return 'bg-red-50 text-red-600 border-red-100';
+        return 'bg-orange-50 text-orange-600 border-orange-100';
     };
 
     if (loading) return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
-            <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4" />
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-orange-600 rounded-full animate-spin mb-4" />
             <p className="text-xs font-semibold text-slate-500">Accessing System Core Logs...</p>
         </div>
     );
@@ -46,13 +46,13 @@ export default function AuditLogs() {
             <header className="mb-10 flex justify-between items-end">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
-                        <Terminal size={24} className="text-indigo-600" />
+                        <Terminal size={24} className="text-orange-600" />
                         System Forensic Logs
                     </h2>
                     <div className="flex items-center gap-2 mt-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Security</span>
                         <ChevronRight size={10} className="text-slate-300" />
-                        <span className="text-[11px] font-semibold text-indigo-500 uppercase tracking-widest">Audit Trail</span>
+                        <span className="text-[11px] font-semibold text-orange-500 uppercase tracking-widest">Audit Trail</span>
                     </div>
                 </div>
                 <div className="flex gap-3">
@@ -61,7 +61,7 @@ export default function AuditLogs() {
                         <input
                             type="text"
                             placeholder="Filter by action or user..."
-                            className="bg-white border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold text-slate-700 outline-none focus:border-indigo-500 shadow-sm w-64"
+                            className="bg-white border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold text-slate-700 outline-none focus:border-orange-500 shadow-sm w-64"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -73,22 +73,77 @@ export default function AuditLogs() {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-                {[
-                    { label: 'Total Events', value: logs.length, icon: <Activity size={20} className="text-indigo-600" /> },
-                    { label: 'Security Critical', value: logs.filter(l => l.action.includes('DELETE') || l.action.includes('UPDATE')).length, icon: <ShieldAlert size={20} className="text-rose-500" /> },
-                    { label: 'Database Health', value: 'Optimal', icon: <Database size={20} className="text-emerald-500" /> },
-                    { label: 'Storage Node', value: 'Secure', icon: <HardDrive size={20} className="text-blue-500" /> }
-                ].map((stat, i) => (
-                    <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-indigo-100 transition-all">
-                        <div>
-                            <h3 className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">{stat.label}</h3>
-                            <p className="text-2xl font-bold tracking-tight text-slate-900">{stat.value}</p>
+                {/* Total Events */}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-slate-800" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-slate-100 transition-colors">
+                            <Activity size={20} className="text-slate-800" />
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">
-                            {stat.icon}
-                        </div>
+                        <div className="px-3 py-1 bg-slate-100 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-200">Total</div>
                     </div>
-                ))}
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Total Events</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">{logs.length}</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Recorded Actions</span>
+                        </p>
+                    </div>
+                </div>
+
+                {/* Security Critical */}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-red-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-red-50 rounded-2xl group-hover:bg-red-100 transition-colors">
+                            <ShieldAlert size={20} className="text-red-600" />
+                        </div>
+                        <div className="px-3 py-1 bg-red-50 rounded-full text-[9px] font-black text-red-600 uppercase tracking-widest border border-red-100 animate-pulse">Critical</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Security Critical</p>
+                    <h3 className="text-3xl font-black text-red-600 tracking-tighter mb-4 pl-2">{logs.filter(l => l.action.includes('DELETE') || l.action.includes('UPDATE')).length}</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Modifications</span>
+                        </p>
+                    </div>
+                </div>
+
+                {/* Database Health */}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-green-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-green-50 rounded-2xl group-hover:bg-green-100 transition-colors">
+                            <Database size={20} className="text-green-600" />
+                        </div>
+                        <div className="px-3 py-1 bg-green-50 rounded-full text-[9px] font-black text-green-600 uppercase tracking-widest border border-green-100">Optimal</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Database Health</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">Optimal</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>System Status</span>
+                        </p>
+                    </div>
+                </div>
+
+                {/* Storage Node */}
+                <div className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-200/60 relative group hover:-translate-y-1 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-orange-500" />
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-orange-50 rounded-2xl group-hover:bg-orange-100 transition-colors">
+                            <HardDrive size={20} className="text-orange-600" />
+                        </div>
+                        <div className="px-3 py-1 bg-orange-50 rounded-full text-[9px] font-black text-orange-600 uppercase tracking-widest border border-orange-100">Secure</div>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1 pl-2">Storage Node</p>
+                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 pl-2">Secure</h3>
+                    <div className="space-y-1.5 pt-4 border-t border-slate-50 pl-2">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+                            <span>Data Integrity</span>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
@@ -116,7 +171,7 @@ export default function AuditLogs() {
                                 <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-slate-100 rounded-lg text-slate-400 group-hover:bg-white group-hover:text-indigo-600 transition-all">
+                                            <div className="p-2 bg-slate-100 rounded-lg text-slate-400 group-hover:bg-white group-hover:text-orange-600 transition-all">
                                                 <Clock size={16} />
                                             </div>
                                             <div>

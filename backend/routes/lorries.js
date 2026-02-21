@@ -1,12 +1,35 @@
 const express = require('express');
 const router = express.Router();
-const { Lorry, AuditLog } = require('../models');
+const { Lorry, AuditLog, Trip, User } = require('../models');
 
 // GET all lorries
 router.get('/', async (req, res) => {
     try {
-        const lorries = await Lorry.findAll();
-        res.json(lorries);
+        const lorries = await Lorry.findAll({
+            include: [{
+                model: Trip,
+                required: false,
+                include: [{
+                    model: User,
+                    as: 'Driver',
+                    attributes: ['name', 'phone']
+                }]
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+
+        const formattedLorries = lorries.map(lorry => {
+            const lorryJSON = lorry.toJSON();
+            // Find an active trip (In Progress or Scheduled)
+            const activeTrip = lorryJSON.Trips?.find(t => t.status === 'In Progress' || t.status === 'Scheduled');
+
+            return {
+                ...lorryJSON,
+                activeDriver: activeTrip?.Driver || null,
+            };
+        });
+
+        res.json(formattedLorries);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -14,13 +37,17 @@ router.get('/', async (req, res) => {
 
 // CREATE a new lorry
 router.post('/', async (req, res) => {
-    const { vehicleNumber, type, capacity, status } = req.body;
+    const { vehicleNumber, type, capacity, status, tires, batteries, loadedMileage, emptyMileage } = req.body;
     try {
         const newLorry = await Lorry.create({
             vehicleNumber,
             type,
             capacity,
             status: status || 'Available',
+            tires,
+            batteries,
+            loadedMileage,
+            emptyMileage
         });
 
         await AuditLog.create({
@@ -42,8 +69,18 @@ router.put('/:id', async (req, res) => {
         const lorry = await Lorry.findByPk(req.params.id);
         if (!lorry) return res.status(404).json({ message: 'Lorry not found' });
 
-        const { vehicleNumber, type, capacity, status, currentLocation } = req.body;
-        await lorry.update({ vehicleNumber, type, capacity, status, currentLocation });
+        const { vehicleNumber, type, capacity, status, currentLocation, tires, batteries, loadedMileage, emptyMileage } = req.body;
+        await lorry.update({
+            vehicleNumber,
+            type,
+            capacity,
+            status,
+            currentLocation,
+            tires,
+            batteries,
+            loadedMileage,
+            emptyMileage
+        });
 
         await AuditLog.create({
             action: 'UPDATE_VEHICLE',
@@ -55,6 +92,19 @@ router.put('/:id', async (req, res) => {
         res.json(lorry);
     } catch (err) {
         res.status(400).json({ message: err.message });
+    }
+});
+
+// POST update lorry physical location (from driver app)
+router.post('/:id/location', async (req, res) => {
+    try {
+        const lorry = await Lorry.findByPk(req.params.id);
+        if (!lorry) return res.status(404).json({ message: 'Lorry not found' });
+
+        await lorry.update({ currentLocation: req.body.location }); // format "lat,lng"
+        res.json({ success: true, currentLocation: lorry.currentLocation });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 

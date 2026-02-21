@@ -160,9 +160,9 @@ export default function RolesPermissions() {
                             Roles & Permissions
                         </h2>
                         <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[11px] font-medium text-slate-400">Security Configuration</span>
+                            <span className="text-[11px] font-medium text-slate-400">Security Settings</span>
                             <ChevronRight size={12} className="text-slate-300" />
-                            <span className="text-[11px] font-semibold text-indigo-500">User Access Control</span>
+                            <span className="text-[11px] font-semibold text-indigo-500">Roles & Permissions</span>
                         </div>
                     </div>
 
@@ -214,8 +214,8 @@ export default function RolesPermissions() {
                                             key={role.id}
                                             onClick={() => handleSelectRole(role.id)}
                                             className={`w-full group p-3.5 rounded-xl transition-all flex flex-col items-start ${selectedRole?.id === role.id
-                                                    ? 'bg-indigo-50 text-indigo-700'
-                                                    : 'text-slate-600 hover:bg-slate-50'
+                                                ? 'bg-indigo-50 text-indigo-700'
+                                                : 'text-slate-600 hover:bg-slate-50'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between w-full mb-1">
@@ -278,7 +278,7 @@ export default function RolesPermissions() {
                                                     onClick={() => setActiveTab('permissions')}
                                                     className={`text-xs font-bold pb-2 transition-all border-b-2 ${activeTab === 'permissions' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
                                                 >
-                                                    Rights Matrix
+                                                    Permissions List
                                                 </button>
                                                 <button
                                                     onClick={() => setActiveTab('members')}
@@ -449,8 +449,8 @@ export default function RolesPermissions() {
                                             </td>
                                             <td className="px-8 py-4">
                                                 <span className={`px-2 py-0.5 rounded-md font-bold text-[9px] uppercase ${log.action.includes('CREATE') ? 'bg-emerald-50 text-emerald-600' :
-                                                        log.action.includes('UPDATE') ? 'bg-amber-50 text-amber-600' :
-                                                            'bg-rose-50 text-rose-600'
+                                                    log.action.includes('UPDATE') ? 'bg-amber-50 text-amber-600' :
+                                                        'bg-rose-50 text-rose-600'
                                                     }`}>
                                                     {log.action}
                                                 </span>

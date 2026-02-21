@@ -128,7 +128,23 @@ const Lorry = sequelize.define('Lorry', {
     },
     capacity: {
         type: DataTypes.FLOAT, // in tons
-        allowNull: false,
+        allowNull: true,
+    },
+    tires: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    batteries: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    loadedMileage: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+    },
+    emptyMileage: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
     },
     status: {
         type: DataTypes.ENUM('Available', 'On Trip', 'Maintenance', 'Inactive'),
@@ -316,8 +332,8 @@ const VehicleFinance = sequelize.define('VehicleFinance', {
 // Define Relationships
 
 // A Lorry can be assigned to a Trip
-Lorry.hasMany(Trip);
-Trip.belongsTo(Lorry);
+Lorry.hasMany(Trip, { foreignKey: 'lorryId' });
+Trip.belongsTo(Lorry, { foreignKey: 'lorryId' });
 
 // A Driver (User) can be assigned to a Trip
 User.hasMany(Trip, { foreignKey: 'driverId' });
